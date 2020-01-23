@@ -7,5 +7,12 @@
  */
 public class PlayGame
 {
-    
+    public static void main(String[] args)
+    {
+        Board game = new Board();
+        while(true)
+        {
+        game.movePiece();
+    }
+    }
 }
