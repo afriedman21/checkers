@@ -9,7 +9,7 @@ public class Board
 {
     private final int NUM_ROWS = 8;
     private final int NUM_COLS = 8;
-    private char[][] checkerBoard = new char[NUM_ROWS][NUM_COLS];
+    private Piece[][] checkerBoard = new Piece[NUM_ROWS][NUM_COLS]; 
     private int turn = 0;
     private int whitePiecesLeft = 12;
     private int blackPiecesLeft = 12;
@@ -23,12 +23,12 @@ public class Board
                 if((k < 3 || k > 4) && k%2 != i%2)
                 {
                     if(k < 3)
-                        checkerBoard[k][i] = 'x';
+                        checkerBoard[k][i] = new Piece('x');
                     else
-                        checkerBoard[k][i] = 'o';
+                        checkerBoard[k][i] = new Piece('o');
                 }
                 else
-                    checkerBoard[k][i] = ' ';
+                    checkerBoard[k][i] = null;
             }
         }
     }
@@ -47,12 +47,12 @@ public class Board
     {
         System.out.println("   1   2   3   4   5   6   7   8");
         int num = 1;
-        for(char[] curRow: checkerBoard)
+        for(Piece[] curRow: checkerBoard)
         {
             System.out.print(num);
-            for(char curPiece: curRow)
+            for(Piece curPiece: curRow)
             {
-                if(curPiece == ' ')
+                if(curPiece == null)
                     System.out.print("|___");
                 else
                     System.out.print("|_" + curPiece + "_");
@@ -66,10 +66,10 @@ public class Board
     {
         for(int i = 0; i < NUM_COLS; i++)
         {
-            if(checkerBoard[NUM_ROWS - 1][i] == 'x')
-                checkerBoard[NUM_ROWS - 1][i] = 'X';
-            if(checkerBoard[0][i] == 'o')
-                checkerBoard[0][i] = 'O';
+            if(checkerBoard[NUM_ROWS - 1][i].getBoardPiece() == 'x')
+                checkerBoard[NUM_ROWS - 1][i] = new Piece('X');
+            if(checkerBoard[0][i].getBoardPiece() == 'o')
+                checkerBoard[0][i] = new Piece('O');
         }
     }
 
@@ -77,12 +77,11 @@ public class Board
     {
         try
         {
-            printBoard();
             if(turn%2 == 0)
                 System.out.println("White to move");
             else
                 System.out.println("Black to move");
-            System.out.println("Choose the piece you would like to move by its coordinate \nfollowed by the first letter of the direction you would like to move. \n(Ex. 2, 3, r)"); // however we tell them to move the piece
+            System.out.println("Choose the piece you would like to move by its coordinate");
             Scanner input = new Scanner(System.in);
             String piece = input.nextLine();
             int chosenCol = Integer.parseInt(piece.substring(0,1));
@@ -91,25 +90,67 @@ public class Board
             String move = input.nextLine();
             int moveCol = Integer.parseInt(move.substring(0,1));
             int moveRow = Integer.parseInt(move.substring(2,3));
-                if(checkerBoard[chosenCol][chosenRow] == 'x' && turn%2 == 0)
-                {
-                    checkerBoard[chosenCol][chosenRow] = ' ';
-                    checkerBoard[moveCol][moveRow] = 'x';
+            if(moveRow > 0 && moveRow < 9 && moveCol > 0 && moveCol < 9)
+            {
+                System.out.print("Not a valid move");
+                return;
+            }
+            if(checkerBoard[chosenRow][chosenCol].getBoardPiece() == 'x' && turn%2 ==0)
+            {
+                if(checkerBoard[moveRow][moveCol].getBoardPiece() == 'x' || checkerBoard[moveRow][moveCol].getBoardPiece() == 'X')
+                {    
+                    System.out.println("Not a valid move");
+                    return;
                 }
-                else if(checkerBoard[chosenCol][chosenRow] == 'o' && turn%2 == 1)
-                {
-                    checkerBoard[chosenCol][chosenRow] = ' ';
-                    checkerBoard[moveCol][moveRow] = 'o';
-                } 
+                else if(checkerBoard[moveRow][moveCol] == null)
+                    if(moveRow - chosenRow == 1 && Math.abs(chosenCol - moveCol) == 1)                                                
+                    {
+                        checkerBoard[moveRow][moveCol] = new Piece('x');
+                        checkerBoard[chosenRow][chosenCol] = null;
+                    }
+                    else
+                    {
+                        System.out.println("Not a valid move");
+                        return;
+                    }
                 else
                 {
-                    System.out.print("Please select a valid piece");
+                    if(moveRow - chosenRow == 2 && Math.abs(chosenCol - moveCol) == 1)                                                
+                    {
+                        checkerBoard[moveRow][moveCol] = new Piece('x');
+                        checkerBoard[chosenRow][chosenCol] = null;
+                    }
+                    else
+                    {
+                        System.out.println("Not a valid move");
+                        return;
+                    }
                 }
-        }
-        catch (NumberFormatException e)
-        {
+            }           
+            //else if(checkerBoard[chosenRow][chosenCol].getBoardPiece() == 'o' && turn%2 ==1)
+            
+            //else
+            //System.out.println("Choose a valid piece");
+            }
+            catch (NumberFormatException e)
+            {
             System.out.println("Please follow the instructions");
         }
-    } 
-}
+    }
+
+    public void removePiece(int r, int c)
+    {
+        if (checkerBoard[r][c].getBoardPiece() == 'x')
+        {
+            checkerBoard[r][c] = null;
+            whitePiecesLeft --;
+        }
+        else if (checkerBoard[r][c].getBoardPiece() == 'o')
+        {
+            checkerBoard[r][c] = null;
+            blackPiecesLeft--;
+        }     
+    }
+
+} 
 
